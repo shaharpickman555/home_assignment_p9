@@ -1,9 +1,8 @@
 pipeline {
     agent any
     environment {
-        DOCKER_REGISTRY = 'docker.io'
         DOCKER_CREDENTIALS_ID = 'fa18182b-0ad0-43f7-8641-776638d92d70'
-        // HELM_RELEASE_NAME = 'your-helm-release-name'
+        HELM_RELEASE_NAME = 'MyApp'
         KUBECONFIG_CREDENTIALS_ID = '08b0450c-f95f-4689-8f26-bc56993b3e4e'
     }
     stages {
@@ -15,7 +14,7 @@ pipeline {
         stage('Build and Push Docker Images') {
             steps {
                 script {
-                    docker.withRegistry('https://$DOCKER_REGISTRY', DOCKER_CREDENTIALS_ID) {
+                    docker.withRegistry('', DOCKER_CREDENTIALS_ID) {  // Note the empty string for the registry URL
                         // Building and pushing the backend image
                         def backendApp = docker.build("spickman/backend-app:${env.BUILD_ID}", './backend')
                         backendApp.push()
