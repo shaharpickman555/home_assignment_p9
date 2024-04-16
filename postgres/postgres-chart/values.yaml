@@ -1,0 +1,21 @@
+image:
+  repository: spickman/postgresql-tasksdb
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 5432
+
+persistence:
+  enabled: true
+  storageClass: standard
+  accessMode: ReadWriteOnce
+  size: 10Gi
+
+postgresql:
+  username: admin
+  password: admin
+  database: tasksdb
+  host: postgresql-tasksdb-postgresql
+  port: 5432

@@ -1,0 +1,4 @@
+apiVersion: v2
+name: postgresql
+description: A Helm chart for Kubernetes to deploy the PostgreSQL database
+version: 0.1.0

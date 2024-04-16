@@ -1,0 +1,13 @@
+replicaCount: 1
+image:
+  repository: spickman/backend-app
+  pullPolicy: IfNotPresent
+  tag: "latest"
+service:
+  type: LoadBalancer
+  port: 3001
+env:
+  DB_HOST: postgresql-tasksdb-postgresql
+  DB_DATABASE: tasksdb
+  DB_USERNAME: admin
+  DB_PASSWORD: admin
