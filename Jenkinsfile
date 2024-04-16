@@ -17,11 +17,11 @@ pipeline {
                 script {
                     docker.withRegistry('https://$DOCKER_REGISTRY', DOCKER_CREDENTIALS_ID) {
                         // Building and pushing the backend image
-                        def backendApp = docker.build("backend-app:${env.BUILD_ID}", './backend')
+                        def backendApp = docker.build("spickman/backend-app:${env.BUILD_ID}", './backend')
                         backendApp.push()
                         
                         // Building and pushing the frontend image
-                        def frontendApp = docker.build("frontend-app:${env.BUILD_ID}", './frontend')
+                        def frontendApp = docker.build("spickman/frontend-app:${env.BUILD_ID}", './frontend')
                         frontendApp.push()
                     }
                 }
