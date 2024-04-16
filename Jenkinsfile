@@ -27,24 +27,33 @@ pipeline {
                 }
             }
         }
-        stage('Deploy Backend to Kubernetes') {
+        stage('TEST') {
             steps {
                 script {
                     withCredentials([file(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG')]) {
-                        sh "helm upgrade --install ${HELM_RELEASE_NAME_BACKEND} ./backend/backend-chart --set image.tag=${env.BUILD_ID}"
+                        sh 'kubectl get pods'
                     }
                 }
             }
         }
-        stage('Deploy Frontend to Kubernetes') {
-            steps {
-                script {
-                    withCredentials([file(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG')]) {
-                        sh "helm upgrade --install ${HELM_RELEASE_NAME_FRONTEND} ./frontend/frontend-chart --set image.tag=${env.BUILD_ID}"
-                    }
-                }
-            }
-        }
+        // stage('Deploy Backend to Kubernetes') {
+        //     steps {
+        //         script {
+        //             withCredentials([file(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG')]) {
+        //                 sh "helm upgrade --install ${HELM_RELEASE_NAME_BACKEND} ./backend/backend-chart --set image.tag=${env.BUILD_ID}"
+        //             }
+        //         }
+        //     }
+        // }
+        // stage('Deploy Frontend to Kubernetes') {
+        //     steps {
+        //         script {
+        //             withCredentials([file(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG')]) {
+        //                 sh "helm upgrade --install ${HELM_RELEASE_NAME_FRONTEND} ./frontend/frontend-chart --set image.tag=${env.BUILD_ID}"
+        //             }
+        //         }
+        //     }
+        // }
     }
     post {
         always {
