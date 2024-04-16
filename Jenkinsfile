@@ -2,7 +2,8 @@ pipeline {
     agent any
     environment {
         DOCKER_CREDENTIALS_ID = 'fa18182b-0ad0-43f7-8641-776638d92d70'
-        HELM_RELEASE_NAME = 'MyApp'
+        HELM_RELEASE_NAME_FRONTEND = 'frontend-app'
+        HELM_RELEASE_NAME_BACKEND = 'backend-app'
         KUBECONFIG_CREDENTIALS_ID = '08b0450c-f95f-4689-8f26-bc56993b3e4e'
     }
     stages {
@@ -14,7 +15,7 @@ pipeline {
         stage('Build and Push Docker Images') {
             steps {
                 script {
-                    docker.withRegistry('', DOCKER_CREDENTIALS_ID) {  // Note the empty string for the registry URL
+                    docker.withRegistry('', DOCKER_CREDENTIALS_ID) {  // Assuming Docker Hub as the registry
                         // Building and pushing the backend image
                         def backendApp = docker.build("spickman/backend-app:${env.BUILD_ID}", './backend')
                         backendApp.push()
@@ -26,11 +27,20 @@ pipeline {
                 }
             }
         }
-        stage('Deploy to Kubernetes') {
+        stage('Deploy Backend to Kubernetes') {
             steps {
                 script {
                     withCredentials([file(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG')]) {
-                        sh "helm upgrade --install ${HELM_RELEASE_NAME} ./helm-chart --set image.tag=${env.BUILD_ID}"
+                        sh "helm upgrade --install ${HELM_RELEASE_NAME_BACKEND} ./backend/backend-chart --set image.tag=${env.BUILD_ID}"
+                    }
+                }
+            }
+        }
+        stage('Deploy Frontend to Kubernetes') {
+            steps {
+                script {
+                    withCredentials([file(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG')]) {
+                        sh "helm upgrade --install ${HELM_RELEASE_NAME_FRONTEND} ./frontend/frontend-chart --set image.tag=${env.BUILD_ID}"
                     }
                 }
             }
