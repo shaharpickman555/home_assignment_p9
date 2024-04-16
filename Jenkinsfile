@@ -1,8 +1,10 @@
 pipeline {
     agent any
     environment {
-        DOCKER_CREDENTIALS_ID = 'fa18182b-0ad0-43f7-8641-776638d92d70'
         DOCKER_REGISTRY = 'docker.io'
+        DOCKER_CREDENTIALS_ID = 'fa18182b-0ad0-43f7-8641-776638d92d70'
+        // HELM_RELEASE_NAME = 'your-helm-release-name'
+        KUBECONFIG_CREDENTIALS_ID = '08b0450c-f95f-4689-8f26-bc56993b3e4e'
     }
     stages {
         stage('Checkout Code') {
@@ -10,30 +12,28 @@ pipeline {
                 checkout scm
             }
         }
-        stage('Build and Push Backend Image') {
+        stage('Build and Push Docker Images') {
             steps {
                 script {
-                    docker.build("backend:${env.BUILD_ID}", "./backend").push()
+                    docker.withRegistry('https://$DOCKER_REGISTRY', DOCKER_CREDENTIALS_ID) {
+                        // Building and pushing the backend image
+                        def backendApp = docker.build("backend-app:${env.BUILD_ID}", './backend')
+                        backendApp.push()
+                        
+                        // Building and pushing the frontend image
+                        def frontendApp = docker.build("frontend-app:${env.BUILD_ID}", './frontend')
+                        frontendApp.push()
+                    }
                 }
             }
         }
-        stage('Build and Push Frontend Image') {
+        stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    docker.build("frontend:${env.BUILD_ID}", "./frontend").push()
+                    withCredentials([file(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG')]) {
+                        sh "helm upgrade --install ${HELM_RELEASE_NAME} ./helm-chart --set image.tag=${env.BUILD_ID}"
+                    }
                 }
-            }
-        }
-        stage('Build and Push PostgreSQL Image') {
-            steps {
-                script {
-                    docker.build("postgres:${env.BUILD_ID}", "./postgres").push()
-                }
-            }
-        }
-        stage('Deploy') {
-            steps {
-                // Add deployment scripts here
             }
         }
     }
