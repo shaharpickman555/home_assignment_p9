@@ -4,7 +4,7 @@ pipeline {
         DOCKER_CREDENTIALS_ID = 'fa18182b-0ad0-43f7-8641-776638d92d70'
         HELM_RELEASE_NAME_FRONTEND = 'frontend-release'
         HELM_RELEASE_NAME_BACKEND = 'backend-release'
-        KUBECONFIG_CREDENTIALS_ID = '08b0450c-f95f-4689-8f26-bc56993b3e4e'
+        KUBECONFIG_CREDENTIALS_ID = '0c476e16-db87-4b18-bc6f-9266a01ff25a'
     }
     stages {
         stage('Checkout Code') {
@@ -31,6 +31,7 @@ pipeline {
             steps {
                 script {
                     withCredentials([file(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG')]) {
+                        sh 'kubectl config current-context'
                         sh 'kubectl get pods'
                     }
                 }
